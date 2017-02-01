@@ -100,7 +100,7 @@ class Example extends Component {
           </ul>
           <hr/>
           <Route exact path="/" component={Home} />
-          <Route path="/data" render={() => <DataView data={this.state.data}/>} />
+          <Route path="/data" render={() => (this.state.data ? <DataView data={this.state.data}/> : <p>Loading...</p>)} />
         </div>
       </Router>
     );
