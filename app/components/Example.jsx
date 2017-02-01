@@ -5,44 +5,6 @@ import {
   Link,
 } from 'react-router-dom';
 
-class PreloaderLink extends Component {
-  static contextTypes = {
-    router: PropTypes.shape({
-      replace: PropTypes.func.isRequired,
-      push: PropTypes.func.isRequired,
-    }).isRequired
-  }
-
-  constructor() {
-    super();
-    this.state = { loading: false };
-  }
-
-  handleClick = (evt) => {
-    evt.preventDefault();
-    this.setState({ loading: true });
-    this.props.onPreload().then(() => {
-      this.setState({ loading: false });
-      const { replace, to } = this.props;
-      if (replace) {
-        this.context.router.replace(to);
-      } else {
-        this.context.router.push(to);
-      }
-    });
-  };
-
-  render() {
-    const {onPreload, ...props} = this.props; // eslint-disable-line no-unused-vars
-    
-    return (
-      <Link onClick={this.handleClick} {...props}>
-        {this.props.children}
-        {this.state.loading ? ' [loading...]' : null}
-      </Link>
-    );
-  }
-}
 
 // keep track of transition index
 const TrId = {
@@ -69,14 +31,10 @@ class AsyncLink extends Component {
     event.preventDefault();
     this.setState({ loading: true });
     const transitionInd = TrId.inc();
-    console.log("trInd =", TrId.id);
+    
     this.props.beforeTransition().then(() => {
       this.setState({ loading: false });
-      
-      console.log(transitionInd, "<", TrId.id, "===", transitionInd < TrId.id);
-      if(transitionInd < TrId.id) console.log("STAY");
-      else console.log("GO");
-      
+            
       // change path only on final transition
       // otherwise async transition can trigger out of order
       if(transitionInd < TrId.id) return;
@@ -125,16 +83,14 @@ class Example extends Component {
   }
   
   preload = () => {
-    console.info("LOADING");
-    // this.setState({data: null});
-    return this.fetchData().then(data => this.setState({ data }, ()=>console.info("LOADED")));
+    // refetches before every transition
+    return this.fetchData().then(data => this.setState({ data }, ()=>console.log("LOADED")));
   }
   
   preloadOnce = () => {
-    console.info("ONCE");
-    // this.setState({ data: null, constData: null });
+    // fetches once, then fills state from the resolved promise
     return (Example.promisedOnce || (Example.promisedOnce = this.fetchData(true)))
-    .then(data => this.setState({ constData: data }, ()=>console.info("LOADED FROM CACHE")));
+    .then(data => this.setState({ constData: data }, ()=>console.log("LOADED FROM CACHE")));
   }
   
   render() {
@@ -142,15 +98,17 @@ class Example extends Component {
       <Router>
         <div>
           <ul>
+            {/* Need TrId.inc() in every Link to account for late async transitions */}
             <li><Link to="/" onClick={TrId.inc}>Home</Link></li>
             <li><AsyncLink beforeTransition={this.preloadOnce} to="/data_once">Fetch Once</AsyncLink></li>
             <li><AsyncLink beforeTransition={this.preload} to="/data_refresh">Refetch Every Time</AsyncLink></li>
           </ul>
           <hr/>
           <Route exact path="/" component={Home} />
-          <Route path="/data_once" render={() => (console.log("/data_once", !!this.state.constData), this.state.constData ? <DataView data={this.state.constData}/> :
+          {/* renders DataView if data exists, otherwise requests data and renders Loading... */}
+          <Route path="/data_once" render={() => (this.state.constData ? <DataView data={this.state.constData}/> :
             (this.preloadOnce(), <p>Loading...</p>))} />
-          <Route path="/data_refresh" render={() => (console.log("/data_refresh", !!this.state.data), this.state.data ? <DataView data={this.state.data}/> :
+          <Route path="/data_refresh" render={() => (this.state.data ? <DataView data={this.state.data}/> :
             (this.preload(), <p>Loading...</p>))} />
         </div>
       </Router>
@@ -158,12 +116,10 @@ class Example extends Component {
   }
 }
 
-window.Example = Example;
 
 class DataView extends PureComponent {
   render() {
     const {data, loadedAt} = this.props.data;
-    console.info("RENDERING DATA", data);
     
     return (
       <div>
@@ -176,39 +132,6 @@ class DataView extends PureComponent {
   }
 }
 
-// class Example extends Component {
-//   constructor() {
-//     super();
-//     this.state = { products: null };
-//   }
-//
-//   loadProducts = () => {
-//     console.info("LOADING");
-//     return new Promise(resolve => {
-//       setTimeout(() => resolve([
-//         'Tesla S',
-//       ]), 1000);
-//     }).then(products => this.setState({ products }, ()=>console.info("LOADED")));
-//   };
-//
-//   render() {
-//     return (
-//       <Router>
-//         <div>
-//           <ul>
-//             <li><Link to="/">Home</Link></li>
-//             <li><PreloaderLink onPreload={this.loadProducts} to="/products">Products</PreloaderLink></li>
-//           </ul>
-//
-//           <hr/>
-//
-//           <Route exact path="/" component={Home} />
-//           <Route path="/products" render={() => <Products fetch={this.loadProducts} list={this.state.products} />} />
-//         </div>
-//       </Router>
-//     );
-//   }
-// }
 
 const Home = () => (
   <div>
@@ -216,29 +139,5 @@ const Home = () => (
   </div>
 );
 
-class Products extends Component {
-  componentDidMount() {
-    if (this.props.list == null) {
-      this.props.fetch();
-    }
-  }
-
-  render() {
-    const { list } = this.props;
-
-    if (list == null) {
-      return <p>Loading...</p>;
-    }
-
-    return (
-      <div>
-        <h2>Products</h2>
-        <ul>
-          {list.map((product, i) => <li key={i}>{product}</li>)}
-        </ul>
-      </div>
-    );
-  }
-}
 
 export default Example;
