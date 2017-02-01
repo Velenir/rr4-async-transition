@@ -74,20 +74,39 @@ class AsyncLink extends Component {
   }
 }
 
+// emulate changing data
+let dataInd = 0;
+
 class Example extends Component {
   constructor(props) {
     super(props);
     this.state = { data: null };
   }
   
-  preload = () => {
-    console.info("LOADING");
+  static promisedOnce
+  
+  fetchData(once) {
+    console.log("FETCHING");
     return new Promise(resolve => {
       setTimeout(() => resolve({
         loadedAt: new Date(),
-        data: ['Data Item 1']
+        data: once ? ['Constant Data Item'] : ['Data Item ' + ++dataInd, 'Data Item ' + ++dataInd]
       }), 1000);
-    }).then(data => this.setState({ data }, ()=>console.info("LOADED")));
+    });
+  }
+  
+  preload = (once = false) => {
+    console.info("LOADING", once && "once" || "");
+    const promise = this.fetchData(once);
+    if(once) return promise;
+    
+    return promise.then(data => (this.setState({ data }, ()=>console.info("LOADED")), data));
+  }
+  
+  preloadOnce = () => {
+    console.info("ONCE");
+    return (Example.promisedOnce || (Example.promisedOnce = this.preload(true)))
+    .then(data => this.setState({ data }, ()=>console.info("LOADED FROM CACHE")));
   }
   
   render() {
@@ -96,14 +115,14 @@ class Example extends Component {
         <div>
           <ul>
             <li><Link to="/">Home</Link></li>
-            <li><AsyncLink beforeTransition={this.preload} to="/data_once">Fetch Once</AsyncLink></li>
+            <li><AsyncLink beforeTransition={this.preloadOnce} to="/data_once">Fetch Once</AsyncLink></li>
             <li><AsyncLink beforeTransition={this.preload} to="/data_refresh">Refetch Every Time</AsyncLink></li>
           </ul>
           <hr/>
           <Route exact path="/" component={Home} />
-          <Route path="/data_once" render={() => (this.state.data ? <DataView data={this.state.data}/> :
-            (this.preload(), <p>Loading...</p>))} />
-          <Route path="/data_refresh" render={() => (this.state.data ? <DataView data={this.state.data}/> :
+          <Route path="/data_once" render={() => (console.log("/data_once"), this.state.data ? <DataView data={this.state.data}/> :
+            (this.preloadOnce(), <p>Loading...</p>))} />
+          <Route path="/data_refresh" render={() => (console.log("/data_refresh"),this.state.data ? <DataView data={this.state.data}/> :
             (this.preload(), <p>Loading...</p>))} />
         </div>
       </Router>
@@ -111,10 +130,13 @@ class Example extends Component {
   }
 }
 
+window.Example = Example;
+
 class DataView extends Component {
   render() {
-    console.log("RENDERING DATA");
     const {data, loadedAt} = this.props.data;
+    console.info("RENDERING DATA", data);
+    
     return (
       <div>
         <h4>Loaded at {loadedAt.toTimeString()}</h4>
