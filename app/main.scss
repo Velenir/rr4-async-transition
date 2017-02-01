@@ -3,4 +3,18 @@
 	width: 70vmin;
 	margin: 10vmin auto;
 	border: 2px solid black;
+	font-size: 1.5rem;
+	background-image: linear-gradient(to bottom, #eaeaea, #a0b1ca);
+	padding: 5px 0 10px 40px;
+	box-shadow: inset 0 0 17px rgba(128, 128, 128, 0.52);
+	border-radius: 10px;
+	
+	> div {
+		padding: 1em;
+		
+		> ul {
+			background-color: #eaeaea;
+			margin: 0;
+		}
+	}
 }
