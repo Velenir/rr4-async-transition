@@ -80,13 +80,13 @@ let dataInd = 0;
 class Example extends Component {
   constructor(props) {
     super(props);
-    this.state = { data: null };
+    this.state = { data: null, constData: null };
   }
   
   static promisedOnce
   
-  fetchData(once) {
-    console.log("FETCHING");
+  fetchData(once = false) {
+    console.log("FETCHING", once ? "once" : "");
     return new Promise(resolve => {
       setTimeout(() => resolve({
         loadedAt: new Date(),
@@ -95,18 +95,16 @@ class Example extends Component {
     });
   }
   
-  preload = (once = false) => {
-    console.info("LOADING", once && "once" || "");
-    const promise = this.fetchData(once);
-    if(once) return promise;
-    
-    return promise.then(data => (this.setState({ data }, ()=>console.info("LOADED")), data));
+  preload = () => {
+    console.info("LOADING");
+    return this.fetchData().then(data => this.setState({ data }, ()=>console.info("LOADED")));
   }
   
   preloadOnce = () => {
     console.info("ONCE");
-    return (Example.promisedOnce || (Example.promisedOnce = this.preload(true)))
-    .then(data => this.setState({ data }, ()=>console.info("LOADED FROM CACHE")));
+    // this.setState({ data: null, constData: null });
+    return (Example.promisedOnce || (Example.promisedOnce = this.fetchData(true)))
+    .then(data => this.setState({ constData: data }, ()=>console.info("LOADED FROM CACHE")));
   }
   
   render() {
@@ -120,9 +118,9 @@ class Example extends Component {
           </ul>
           <hr/>
           <Route exact path="/" component={Home} />
-          <Route path="/data_once" render={() => (console.log("/data_once"), this.state.data ? <DataView data={this.state.data}/> :
+          <Route path="/data_once" render={() => (console.log("/data_once"), this.state.constData ? <DataView data={this.state.constData}/> :
             (this.preloadOnce(), <p>Loading...</p>))} />
-          <Route path="/data_refresh" render={() => (console.log("/data_refresh"),this.state.data ? <DataView data={this.state.data}/> :
+          <Route path="/data_refresh" render={() => (console.log("/data_refresh"), this.state.data ? <DataView data={this.state.data}/> :
             (this.preload(), <p>Loading...</p>))} />
         </div>
       </Router>
