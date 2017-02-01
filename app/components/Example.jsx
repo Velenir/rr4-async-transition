@@ -1,4 +1,4 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component, PureComponent, PropTypes } from 'react';
 import {
   BrowserRouter as Router,
   Route,
@@ -130,7 +130,7 @@ class Example extends Component {
 
 window.Example = Example;
 
-class DataView extends Component {
+class DataView extends PureComponent {
   render() {
     const {data, loadedAt} = this.props.data;
     console.info("RENDERING DATA", data);
