@@ -79,6 +79,7 @@ class Example extends Component {
     super(props);
     this.state = { data: null };
   }
+  
   preload = () => {
     console.info("LOADING");
     return new Promise(resolve => {
@@ -95,12 +96,15 @@ class Example extends Component {
         <div>
           <ul>
             <li><Link to="/">Home</Link></li>
-            <li><AsyncLink beforeTransition={this.preload} to="/data">Fetch Once</AsyncLink></li>
-            <li><AsyncLink beforeTransition={this.preload} to="/data">Refetch Every Time</AsyncLink></li>
+            <li><AsyncLink beforeTransition={this.preload} to="/data_once">Fetch Once</AsyncLink></li>
+            <li><AsyncLink beforeTransition={this.preload} to="/data_refresh">Refetch Every Time</AsyncLink></li>
           </ul>
           <hr/>
           <Route exact path="/" component={Home} />
-          <Route path="/data" render={() => (this.state.data ? <DataView data={this.state.data}/> : <p>Loading...</p>)} />
+          <Route path="/data_once" render={() => (this.state.data ? <DataView data={this.state.data}/> :
+            (this.preload(), <p>Loading...</p>))} />
+          <Route path="/data_refresh" render={() => (this.state.data ? <DataView data={this.state.data}/> :
+            (this.preload(), <p>Loading...</p>))} />
         </div>
       </Router>
     );
