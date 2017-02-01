@@ -44,7 +44,20 @@ class PreloaderLink extends Component {
   }
 }
 
+// keep track of transition index
+const TrId = {
+  id: 0,
+  inc() {
+    return ++TrId.id;
+  }
+};
+
 class AsyncLink extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { loading: false };
+  }
+  
   static contextTypes = {
     router: PropTypes.shape({
       replace: PropTypes.func.isRequired,
@@ -54,7 +67,20 @@ class AsyncLink extends Component {
   
   handleClick = (event) => {
     event.preventDefault();
+    this.setState({ loading: true });
+    const transitionInd = TrId.inc();
+    console.log("trInd =", TrId.id);
     this.props.beforeTransition().then(() => {
+      this.setState({ loading: false });
+      
+      console.log(transitionInd, "<", TrId.id, "===", transitionInd < TrId.id);
+      if(transitionInd < TrId.id) console.log("STAY");
+      else console.log("GO");
+      
+      // change path only on final transition
+      // otherwise async transition can trigger out of order
+      if(transitionInd < TrId.id) return;
+      
       const { replace, to } = this.props;
       console.log("GOING TO", to);
       if (replace) {
@@ -66,10 +92,13 @@ class AsyncLink extends Component {
   }
   
   render() {
-    const {beforeTransition, ...props} = this.props; // eslint-disable-line no-unused-vars
+    const {beforeTransition, children, ...props} = this.props; // eslint-disable-line no-unused-vars
     
     return (
-      <Link onClick={this.handleClick} {...props} />
+      <Link onClick={this.handleClick} {...props} >
+        {children}
+        {this.state.loading && "..."}
+      </Link>
     );
   }
 }
@@ -97,6 +126,7 @@ class Example extends Component {
   
   preload = () => {
     console.info("LOADING");
+    // this.setState({data: null});
     return this.fetchData().then(data => this.setState({ data }, ()=>console.info("LOADED")));
   }
   
@@ -112,15 +142,15 @@ class Example extends Component {
       <Router>
         <div>
           <ul>
-            <li><Link to="/">Home</Link></li>
+            <li><Link to="/" onClick={TrId.inc}>Home</Link></li>
             <li><AsyncLink beforeTransition={this.preloadOnce} to="/data_once">Fetch Once</AsyncLink></li>
             <li><AsyncLink beforeTransition={this.preload} to="/data_refresh">Refetch Every Time</AsyncLink></li>
           </ul>
           <hr/>
           <Route exact path="/" component={Home} />
-          <Route path="/data_once" render={() => (console.log("/data_once"), this.state.constData ? <DataView data={this.state.constData}/> :
+          <Route path="/data_once" render={() => (console.log("/data_once", !!this.state.constData), this.state.constData ? <DataView data={this.state.constData}/> :
             (this.preloadOnce(), <p>Loading...</p>))} />
-          <Route path="/data_refresh" render={() => (console.log("/data_refresh"), this.state.data ? <DataView data={this.state.data}/> :
+          <Route path="/data_refresh" render={() => (console.log("/data_refresh", !!this.state.data), this.state.data ? <DataView data={this.state.data}/> :
             (this.preload(), <p>Loading...</p>))} />
         </div>
       </Router>
