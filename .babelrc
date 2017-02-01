@@ -1,0 +1,21 @@
+{
+  "plugins": ["syntax-dynamic-import"],
+  "presets": [
+		[
+      "es2015",
+      {
+        "modules": false
+      }
+    ],
+    "react",
+    "stage-2"
+  ],
+  "env": {
+    "test": {
+      "presets": [
+        "es2015",
+        "stage-2"
+      ]
+    }
+  }
+}
