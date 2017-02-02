@@ -66,6 +66,15 @@ const SyncLink = (props) => <Link {...props} onClick={TrId.inc}/>;
 
 // emulate changing data
 let dataInd = 0;
+function fetchData(once = false) {
+  console.log("FETCHING", once ? "once" : "");
+  return new Promise(resolve => {
+    setTimeout(() => resolve({
+      loadedAt: new Date(),
+      data: once ? ['Constant Data Item'] : ['Data Item ' + ++dataInd, 'Data Item ' + ++dataInd]
+    }), 1000);
+  });
+}
 
 class Example extends Component {
   constructor(props) {
@@ -76,24 +85,14 @@ class Example extends Component {
 	// static so it persists across remounts and multiple instances
   static promisedOnce = null
   
-  fetchData(once = false) {
-    console.log("FETCHING", once ? "once" : "");
-    return new Promise(resolve => {
-      setTimeout(() => resolve({
-        loadedAt: new Date(),
-        data: once ? ['Constant Data Item'] : ['Data Item ' + ++dataInd, 'Data Item ' + ++dataInd]
-      }), 1000);
-    });
-  }
-  
   preload = () => {
     // refetches before every transition
-    return this.fetchData().then(data => this.setState({ data }, ()=>console.log("LOADED")));
+    return fetchData().then(data => this.setState({ data }, ()=>console.log("LOADED")));
   }
   
   preloadOnce = () => {
     // fetches once, then fills state from the resolved promise
-    return (Example.promisedOnce || (Example.promisedOnce = this.fetchData(true)))
+    return (Example.promisedOnce || (Example.promisedOnce = fetchData(true)))
     .then(data => this.setState({ constData: data }, ()=>console.log("LOADED FROM CACHE")));
   }
   
