@@ -22,9 +22,51 @@
           "0": 0
         }
       }
+    },
+    {
+      "modules": {
+        "byIdentifier": {
+          "node_modules/pug-runtime/index.js": "coDY",
+          "external \"fs\"": 0,
+          "node_modules/pug-loader/stringify.loader.js!node_modules/html-webpack-template-pug/mixins.pug": "B3Hk",
+          "node_modules/pug-loader/index.js!node_modules/html-webpack-template-pug/layout.pug": "zt4+"
+        },
+        "usedIds": {
+          "0": 0,
+          "coDY": "coDY",
+          "B3Hk": "B3Hk",
+          "zt4+": "zt4+"
+        }
+      },
+      "chunks": {
+        "byName": {},
+        "byBlocks": {},
+        "usedIds": {
+          "0": 0
+        }
+      }
     }
   ],
   "extract-text-webpack-plugin": [
+    {
+      "modules": {
+        "byIdentifier": {
+          "node_modules/css-loader/index.js!node_modules/postcss-loader/index.js!node_modules/sass-loader/index.js!node_modules/postcss-loader/index.js?{\"ident\":\"postcss-lint\",\"plugins\":[null]}!app/main.scss": "/PUc",
+          "node_modules/css-loader/lib/css-base.js": "FZ+f"
+        },
+        "usedIds": {
+          "/PUc": "/PUc",
+          "FZ+f": "FZ+f"
+        }
+      },
+      "chunks": {
+        "byName": {},
+        "byBlocks": {},
+        "usedIds": {
+          "0": 0
+        }
+      }
+    },
     {
       "modules": {
         "byIdentifier": {

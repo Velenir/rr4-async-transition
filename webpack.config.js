@@ -11,7 +11,7 @@ const PATHS = {
 };
 
 const templateConfig = {
-  title: 'React TodoMVC',
+  title: 'react-router Async transition example',
   inject: false,
   template: require('html-webpack-template-pug'),
   appMountId: 'app'

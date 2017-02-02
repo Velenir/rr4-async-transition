@@ -7,7 +7,7 @@
     "start": "nodemon --watch webpack.config.js --watch webpack.parts.js --exec \"npm run dev-server\"",
     "dev-server": "webpack-dev-server --env development",
     "build": "webpack --env production",
-    "deploy": "npm run build && gh-pages -d build",
+    "deploy": "npm run build && cp ./build/index.html ./build/200.html && cp CNAME ./build && surge build",
     "test:lint": "eslint . --ext .js --ext .jsx --ignore-path .gitignore --cache",
     "stats": "webpack --env production --profile --json > stats.json"
   },
