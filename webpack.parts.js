@@ -137,7 +137,6 @@ exports.lintCSS = function(paths, options) {
 								ignoreFiles: 'node_modules/**/*.css'
 							}, options))
 						]
-						// ctx: {plugins: 'stylelint', lint: true}
 					}
 				}
 			]
