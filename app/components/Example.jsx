@@ -61,6 +61,9 @@ class AsyncLink extends Component {
   }
 }
 
+// Need TrId.inc() in every Link to account for late async transitions
+const SyncLink = (props) => <Link {...props} onClick={TrId.inc}/>;
+
 // emulate changing data
 let dataInd = 0;
 
@@ -70,7 +73,8 @@ class Example extends Component {
     this.state = { data: null, constData: null };
   }
   
-  static promisedOnce
+	// static so it persists across remounts and multiple instances
+  static promisedOnce = null
   
   fetchData(once = false) {
     console.log("FETCHING", once ? "once" : "");
@@ -98,8 +102,7 @@ class Example extends Component {
       <Router>
         <div>
           <ul>
-            {/* Need TrId.inc() in every Link to account for late async transitions */}
-            <li><Link to="/" onClick={TrId.inc}>Home</Link></li>
+            <li><SyncLink to="/">Home</SyncLink></li>
             <li><AsyncLink beforeTransition={this.preloadOnce} to="/data_once">Fetch Once</AsyncLink></li>
             <li><AsyncLink beforeTransition={this.preload} to="/data_refresh">Refetch Every Time</AsyncLink></li>
           </ul>
