@@ -93,6 +93,8 @@ class Example extends Component {
   }
   
   preloadOnce = () => {
+    // don't bother setting state to constant data
+    if(this.state.constData) return Promise.resolve();
     // fetches once, then fills state from the resolved promise
     return (Example.promisedOnce || (Example.promisedOnce = fetchData(true)))
     .then(data => this.setState({ constData: data }, ()=>console.log("LOADED FROM CACHE")));
