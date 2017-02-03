@@ -2,7 +2,7 @@ import React, { Component, PureComponent, PropTypes } from 'react';
 import {
   BrowserRouter as Router,
   Route,
-  Link,
+  Link
 } from 'react-router-dom';
 
 
@@ -40,11 +40,13 @@ class AsyncLink extends Component {
       if(transitionInd < TrId.id) return;
       
       const { replace, to } = this.props;
+      const { router } = this.context;
+      const { pathname, search, hash }  = router.location;
       console.log("GOING TO", to);
-      if (replace) {
-        this.context.router.replace(to);
+      if (replace || pathname + search + hash === to) {
+        router.replace(to);
       } else {
-        this.context.router.push(to);
+        router.push(to);
       }
     });
   }
