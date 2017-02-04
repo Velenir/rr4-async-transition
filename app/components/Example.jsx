@@ -9,14 +9,6 @@ import createHistory from 'history/createBrowserHistory';
 
 const history = createHistory();
 
-// keep track of transition index
-const TrId = {
-  id: 0,
-  inc() {
-    return ++TrId.id;
-  }
-};
-
 let blockAsyncTransition = false;
 // if async transition is in progress, but a normal sync history.push/replace is triggered
 // either by Link.onClick or history.back/forward
@@ -39,7 +31,7 @@ class AsyncLink extends Component {
   handleClick = (event) => {
     event.preventDefault();
     this.setState({ loading: true });
-    // const transitionInd = TrId.inc();
+		// allow this transition unless something happens before promise resolves
     blockAsyncTransition = false;
     
     this.props.beforeTransition().then(() => {
@@ -47,7 +39,6 @@ class AsyncLink extends Component {
             
       // change path only on final transition
       // otherwise async transition can trigger out of order
-      // if(transitionInd < TrId.id) return;
       if(blockAsyncTransition) return;
       
       const { replace, to } = this.props;
@@ -73,9 +64,6 @@ class AsyncLink extends Component {
     );
   }
 }
-
-// Need TrId.inc() in every Link to account for late async transitions
-const SyncLink = (props) => <Link {...props} onClick={TrId.inc}/>;
 
 // emulate changing data
 let dataInd = 0;
