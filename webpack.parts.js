@@ -93,8 +93,8 @@ exports.extractCSS = function(paths) {
 					include: paths,
 					
 					use: ExtractTextPlugin.extract({
-						fallbackLoader: 'style-loader',
-						loader: ['css-loader?importLoaders=1', 'postcss-loader']
+						fallback: 'style-loader',
+						use: ['css-loader?importLoaders=1', 'postcss-loader']
 					})
 				},
 				// Extract SCSS during build
@@ -104,8 +104,8 @@ exports.extractCSS = function(paths) {
 					include: paths,
 					
 					use: ExtractTextPlugin.extract({
-						fallbackLoader: 'style-loader',
-						loader: ['css-loader', 'postcss-loader', 'sass-loader']
+						fallback: 'style-loader',
+						use: ['css-loader', 'postcss-loader', 'sass-loader']
 					})
 				}
 			]
