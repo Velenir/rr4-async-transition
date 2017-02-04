@@ -1,0 +1,14 @@
+{
+  "extends": "stylelint-config-standard",
+  "rules": {
+    "indentation": "tab",
+    "number-leading-zero": null,
+    "selector-list-comma-newline-after": null,
+    "color-hex-case": null,
+    "function-comma-space-after": null,
+		"no-eol-whitespace": [true, {ignore: ["empty-lines"]}],
+    "comment-empty-line-before": ["always", {"except": ["first-nested"], "ignore": ["after-comment", "stylelint-commands"]}],
+    "rule-empty-line-before": ["always", {"ignore": ["after-comment", "inside-block"]}]
+  },
+  "ignoreFiles": "./build/**/*"
+}
