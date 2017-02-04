@@ -1,10 +1,13 @@
 import React, { Component, PureComponent, PropTypes } from 'react';
 import {
-  BrowserRouter as Router,
+  Router,
   Route,
   Link
 } from 'react-router-dom';
 
+import createHistory from 'history/createBrowserHistory';
+
+const history = createHistory();
 
 // keep track of transition index
 const TrId = {
@@ -13,6 +16,12 @@ const TrId = {
     return ++TrId.id;
   }
 };
+
+let blockAsyncTransition = false;
+// if async transition is in progress, but a normal sync history.push/replace is triggered
+// either by Link.onClick or history.back/forward
+// disallow async transition to progress
+history.listen(() => blockAsyncTransition = true);
 
 class AsyncLink extends Component {
   constructor(props) {
@@ -30,14 +39,16 @@ class AsyncLink extends Component {
   handleClick = (event) => {
     event.preventDefault();
     this.setState({ loading: true });
-    const transitionInd = TrId.inc();
+    // const transitionInd = TrId.inc();
+    blockAsyncTransition = false;
     
     this.props.beforeTransition().then(() => {
       this.setState({ loading: false });
             
       // change path only on final transition
       // otherwise async transition can trigger out of order
-      if(transitionInd < TrId.id) return;
+      // if(transitionInd < TrId.id) return;
+      if(blockAsyncTransition) return;
       
       const { replace, to } = this.props;
       const { router } = this.context;
@@ -102,10 +113,10 @@ class Example extends Component {
   
   render() {
     return (
-      <Router>
+      <Router history={history}>
         <div>
           <ul>
-            <li><SyncLink to="/">Home</SyncLink></li>
+            <li><Link to="/">Home</Link></li>
             <li><AsyncLink beforeTransition={this.preloadOnce} to="/data_once">Fetch Once</AsyncLink></li>
             <li><AsyncLink beforeTransition={this.preload} to="/data_refresh">Refetch Every Time</AsyncLink></li>
           </ul>
