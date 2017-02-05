@@ -27,19 +27,23 @@ class AsyncLink extends Component {
       push: PropTypes.func.isRequired,
     }).isRequired
   }
+	
+  // keep track of latest async transition
+  static transitionInd = 0
   
   handleClick = (event) => {
     event.preventDefault();
     this.setState({ loading: true });
 		// allow this transition unless something happens before promise resolves
     blockAsyncTransition = false;
+    const ind = ++AsyncLink.transitionInd;
     
     this.props.beforeTransition().then(() => {
       this.setState({ loading: false });
             
       // change path only on final transition
       // otherwise async transition can trigger out of order
-      if(blockAsyncTransition) return;
+      if(blockAsyncTransition || ind < AsyncLink.transitionInd) return;
       
       const { replace, to } = this.props;
       const { router } = this.context;
